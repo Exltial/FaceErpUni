@@ -1,0 +1,58 @@
+{
+	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
+		{
+		    "path" : "pages/login/login",
+		    "style" : {}
+		},
+		{
+			"path": "pages/index/index",
+			"style": {
+				"navigationBarTitleText": "首页"
+			}
+		}
+	    ,{
+            "path" : "pages/attendance/attendance",
+            "style" : {}
+        }
+        ,{
+            "path" : "pages/assets/addAssets",
+            "style" : {}
+        }
+        ,{
+            "path" : "pages/registry/registry",
+            "style" : {}
+        }
+        ,{
+            "path" : "pages/achievement/achievement",
+            "style" : {}
+        }
+        ,{
+            "path" : "pages/assets/assets",
+            "style" : {}
+        }
+        ,{
+            "path" : "pages/notice/notice",
+            "style" : {}
+        }
+        ,{
+            "path" : "pages/notice/addNotice",
+            "style" : {}
+        }
+        ,{
+            "path" : "pages/achievement/addAchievement",
+            "style" : {}
+        }
+        ,{
+            "path" : "pages/user/user",
+            "style" : {}
+        }
+    ],
+	"globalStyle": {
+		"navigationBarTextStyle": "black",
+		"navigationBarTitleText": "FaceERP",
+		"navigationBarBackgroundColor": "#F8F8F8",
+		"backgroundColor": "#F8F8F8",
+		"navigationStyle": "custom"
+
+	}
+}
