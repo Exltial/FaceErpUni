@@ -5,9 +5,12 @@ Vue.component('cu-custom',cuCustom)
 
 import Fun from "./common/function.js";
 Vue.prototype.fun = Fun;
+// 普通引入组件
+import tkiFileManager from "@/components/tki-file-manager/tki-file-manager.vue"
+Vue.component('tki-file-manager',tkiFileManager)
 
 Vue.prototype.remoteUrl='http://7xstore.club//erp-bootstrap-0.0.1-SNAPSHOT';
-// Vue.prototype.remoteUrl='http://127.0.0.1:8070';
+// Vue.prototype.remoteUrl='http://192.168.1.3:8070';
 Vue.config.productionTip = false
 
 

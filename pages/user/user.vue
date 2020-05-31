@@ -10,31 +10,15 @@
 			</view>
 		</view>
 		<view class="cu-card case">
-			<view class="cu-item shadow">
+			<view class="cu-item shadow" v-for="(item,index) in list" :key="index">
 				<view class="image">
-					<image src="https://ossweb-img.qq.com/images/lol/web201310/skin/big10006.jpg"
-					 mode="widthFix"></image>
-					<view class="cu-tag bg-blue">用户</view>
+					<image :src="item.imgUrl" mode="widthFix"></image>
+					<view :class="item.userRole=='管理员'?'cu-tag bg-red':'cu-tag bg-blue'">{{item.userRole}}</view>
 				</view>
 				<view class="cu-list menu-avatar">
 					<view class="cu-item">
 						<view class="content flex-sub">
-							<view class="text-grey">正义天使 凯尔</view>
-							</view>
-						</view>
-					</view>
-				</view>
-				<view class="cu-item shadow">
-					<view class="image">
-						<image src="https://ossweb-img.qq.com/images/lol/web201310/skin/big10006.jpg"
-						 mode="widthFix"></image>
-						<view class="cu-tag bg-red">管理员</view>
-					</view>
-					<view class="cu-list menu-avatar">
-						<view class="cu-item">
-							<view class="content flex-sub">
-								<view class="text-grey">正义天使 凯尔</view>
-								</view>
+							<view class="text-grey text-xxl">{{item.userName}}</view>
 							</view>
 						</view>
 					</view>
@@ -49,8 +33,39 @@
 	export default {
 		data() {
 			return {
-				
+				list:[]
 			};
+		},
+		methods:{
+			loadData:function(){
+				let _this = this;
+				uni.request({
+					url: this.remoteUrl + '/user/userList',
+					method: "POST",
+					header: {
+						'content-type': 'application/json',
+						'Authorization': uni.getStorageSync('Authorization')
+					},
+					success: function(res) {
+						let data = res.data;
+						if (data.success) {
+							let list = data.data;
+							for (let i = 0; i < list.length; i++) {
+								let item = {
+									userName: list[i].userName,
+									userRole: list[i].userRole=='ADMIN'?'管理员':'用户',
+									imgUrl: _this.remoteUrl+list[i].imgUrl
+								}
+								_this.list.push(item)
+							}
+							console.log(_this.list)
+						}
+					}
+				});
+			}
+		},
+		onLoad() {
+			this.loadData()
 		}
 	}
 </script>

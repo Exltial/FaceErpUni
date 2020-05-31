@@ -2,19 +2,28 @@
 	<view>
 		<cu-custom bgColor="bg-gradual-pink" :isBack="true">
 			<block slot="backText">返回</block>
-			<block slot="content">通知</block>
+			<block slot="content">监控管理</block>
 		</cu-custom>
 		<form>
 			<view class="cu-form-group margin-top">
-				<view class="title">标题</view>
-				<input name="input" v-model="title"></input>
+				<view class="title">摄像头名称</view>
+				<input name="input" v-model="camName"></input>
 			</view>
-			<view class="cu-form-group margin-top">
-				<textarea maxlength="100" @input="textareaAInput" placeholder="通知内容" v-model="content"></textarea>
+			<view class="cu-form-group">
+				<view class="title">码流地址</view>
+				<input name="input" v-model="camUrl"></input>
+			</view>
+			<view class="cu-form-group">
+				<view class="title">账号</view>
+				<input name="input" v-model="username"></input>
+			</view>
+			<view class="cu-form-group">
+				<view class="title">密码</view>
+				<input name="input" v-model="password"></input>
 			</view>
 		</form>
 		<view class="padding flex flex-direction">
-			<button class="cu-btn bg-red margin-tb-sm lg" @tap="confirm">确定发布</button>
+			<button class="cu-btn bg-red margin-tb-sm lg" @tap="confirm">确定录入</button>
 		</view>
 		<view class="cu-modal" :class="accessDenied ? 'show' : ''">
 			<view class="cu-dialog">
@@ -37,22 +46,23 @@
 		data() {
 			return {
 				accessDenied:'',
-				title: '',
-				content: ''
+				camName: '',
+				camUrl: '',
+				username: '',
+				password: ''
 			}
 		},
 		methods: {
-			textareaAInput(e) {
-				this.textareaAValue = e.detail.value
-			},
-			confirm: function() {
+			confirm() {
 				let _this = this;
 				let data = {
-					topic: this.title,
-					content: this.content
-				}
+					camName: this.camName,
+					camUrl: this.camUrl,
+					username: this.username,
+					password: this.password
+				};
 				uni.request({
-					url: this.remoteUrl + '/notice/addNotice',
+					url: this.remoteUrl + '/monitor/addCam',
 					data: data,
 					method: "POST",
 					header: {
@@ -60,11 +70,10 @@
 						'Authorization': uni.getStorageSync('Authorization')
 					},
 					success: function(res) {
+						console.log(res.data);
 						let data = res.data;
 						if (data.success) {
-							uni.redirectTo({
-							    url: '../notice/notice'
-							});
+							_this.fun.navigateTo("/pages/monitor/monitor");
 						}else{
 							_this.accessDenied='show'
 						}

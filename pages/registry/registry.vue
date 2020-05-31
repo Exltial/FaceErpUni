@@ -89,6 +89,7 @@
 					sourceType: ['camera'],
 					success: function(res) {
 						_this.loadModal = true;
+						console.log(res.tempFilePaths[0])
 						//上传图像得到脸部ID
 						uni.uploadFile({
 							url: _this.remoteUrl + '/file/uploadPic', // 后端api接口
@@ -172,8 +173,6 @@
 						let data = res.data;
 						if (data.success) {
 							_this.loadModal = false;
-							_this.modalContent = '注册成功,请登陆';
-							_this.showModal();
 							_this.fun.navigateTo("/pages/login/login");
 						} else {
 							_this.loadModal = false;

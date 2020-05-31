@@ -2,11 +2,11 @@
 	<view>
 		<cu-custom bgColor="bg-gradual-pink" :isBack="true">
 			<block slot="backText">返回</block>
-			<block slot="content">固资</block>
+			<block slot="content">监控</block>
 		</cu-custom>
 		<view class="cu-bar bg-white solid-bottom margin-top">
 			<view class="action">
-				<text class="cuIcon-title text-orange "></text> 固资列表
+				<text class="cuIcon-title text-orange "></text> 摄像头列表
 			</view>
 		</view>
 		<view class="cu-modal" :class="accessDenied ? 'show' : ''">
@@ -22,17 +22,6 @@
 				</view>
 			</view>
 		</view>
-		<view class="cu-modal" :class="modalName=='Image'?'show':''">
-			<view class="cu-dialog">
-				<view class="bg-img" :style="showFileStyle">
-					<view class="cu-bar justify-end text-white">
-						<view class="action" @tap="modalName=''">
-							<text class="cuIcon-close "></text>
-						</view>
-					</view>
-				</view>
-			</view>
-		</view>
 		<c-list :moveList="list" :listType="type"></c-list>
 	</view>
 </template>
@@ -45,9 +34,6 @@
 		},
 		data() {
 			return {
-				showFileStyle:null,
-				showFilePath: null,
-				modalName: '',
 				accessDenied: '',
 				type: 2,
 				list: []
@@ -57,7 +43,7 @@
 			loadData() {
 				let _this = this;
 				uni.request({
-					url: this.remoteUrl + '/assets/getAssetsList',
+					url: this.remoteUrl + '/monitor/findCamList',
 					method: "POST",
 					header: {
 						'Authorization': uni.getStorageSync('Authorization')
@@ -70,21 +56,16 @@
 							console.log(list)
 							for (let i = 0; i < list.length; i++) {
 								let item = {
-									title: list[i].assetsName,
-									content: list[i].assetsPosition,
-									typeName: list[i].assetsId,
-									type: 1,
-									date: list[i].assetsOwner,
+									title: list[i].camName,
+									content: list[i].camUrl,
+									type:99,
 									button1: null,
-									button2: '编辑',
+									button2: null,
 									button3: '删除',
 									tap: function() {
-										if (list[i].fileId != null) {
-											_this.showPic(list[i].fileId);
+										if (list[i].camUrl != null &&list[i].camUrl != '') {
+											_this.show(list[i].camUrl);
 										}
-									},
-									tap2: function() {
-										_this.edit(list[i].id)
 									},
 									tap3: function() {
 										_this.delete(list[i].id)
@@ -92,28 +73,14 @@
 								}
 								_this.list.push(item)
 							}
+						}else{
+							_this.accessDenied='show'
 						}
 					}
 				});
 			},
-			showPic(fileId) {
-				let _this = this;
-				uni.request({
-					url: this.remoteUrl + '/file/getPath/' + fileId,
-					method: "GET",
-					header: {
-						'Authorization': uni.getStorageSync('Authorization')
-					},
-					success: function(res) {
-						console.log(res.data);
-						let data = res.data;
-						if (data.success) {
-							_this.showFilePath = _this.remoteUrl + '/static/' + data.data
-							_this.showFileStyle = "background-image: url("+_this.showFilePath+");height:300px;"
-							_this.modalName = 'Image'
-						}
-					}
-				});
+			show(url){
+				this.fun.navigateTo('/pages/monitor/show?id='+url)
 			},
 			delete(id) {
 				let _this = this;
@@ -122,7 +89,7 @@
 					id: id
 				}
 				uni.request({
-					url: this.remoteUrl + '/assets/deleteAssets',
+					url: this.remoteUrl + '/monitor/deleteCam',
 					data: data,
 					method: "POST",
 					header: {
@@ -134,16 +101,13 @@
 						let data = res.data;
 						if (data.success) {
 							uni.redirectTo({
-								url: '../assets/assets'
+								url: '../monitor/monitor'
 							});
 						} else {
 							_this.accessDenied = 'show'
 						}
 					}
 				});
-			},
-			edit(id) {
-				this.fun.navigateTo('/pages/assets/addAssets?id=' + id);
 			}
 		},
 		onLoad() {

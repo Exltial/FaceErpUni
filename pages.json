@@ -46,6 +46,18 @@
             "path" : "pages/user/user",
             "style" : {}
         }
+        ,{
+            "path" : "pages/monitor/monitor",
+            "style" : {}
+        }
+        ,{
+            "path" : "pages/monitor/show",
+            "style" : {}
+        }
+        ,{
+            "path" : "pages/monitor/addCamera",
+            "style" : {}
+        }
     ],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",

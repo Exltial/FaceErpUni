@@ -21,7 +21,7 @@
 
 		<view class="bg-white padding-lr">
 			<view class="padding flex flex-direction">
-				<button class="cu-btn bg-blue lg" @tap="startSoterAuthenticationFaceID">登陆</button>
+				<button class="cu-btn bg-blue lg" @tap="startSoterAuthenticationFaceID">登录</button>
 			</view>
 			<view class="padding flex flex-direction">
 				<button class="cu-btn bg-green lg" @tap="fun.navigateTo('/pages/registry/registry')">注册</button>

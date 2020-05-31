@@ -1,101 +1,17 @@
 <template>
 	<view class="content">
-		<swiper class="screen-swiper" :class="dotStyle?'square-dot':'round-dot'" :indicator-dots="true" :circular="true"
-		 :autoplay="true" interval="5000" duration="500">
-			<swiper-item v-for="(item,index) in swiperList" :key="index">
-				<image :src="item.url" mode="aspectFill" v-if="item.type=='image'"></image>
-				<video :src="item.url" autoplay loop muted :show-play-btn="false" :controls="false" objectFit="cover" v-if="item.type=='video'"></video>
-			</swiper-item>
-		</swiper>
-		<view class="cu-bar bg-white solid-bottom margin-top">
-			<view class="action">
-				<text class="cuIcon-title text-orange "></text> 考勤
-			</view>
-		</view>
-		<view class="cu-list grid" :class="['col-' + gridCol,gridBorder?'':'no-border']">
-			<view class="cu-item" v-for="(item,index) in attendanceList" :key="index" v-if="index<gridCol*2" @tap="attendance(item.type)">
-				<view :class="['cuIcon-' + item.cuIcon,'text-' + item.color]">
-					<view class="cu-tag badge" v-if="item.badge!=0">
-						<block v-if="item.badge!=1">{{item.badge>99?'99+':item.badge}}</block>
-					</view>
-				</view>
-				<text>{{item.name}}</text>
-			</view>
-		</view>
-		<view class="cu-bar bg-white solid-bottom margin-top">
-			<view class="action">
-				<text class="cuIcon-title text-orange "></text> 成果
-			</view>
-		</view>
-		<view class="cu-list grid" :class="['col-' + gridCol,gridBorder?'':'no-border']">
-			<view class="cu-item" v-for="(item,index) in achievementList" :key="index" v-if="index<gridCol*2" @tap="fun.navigateTo(item.url)">
-				<view :class="['cuIcon-' + item.cuIcon,'text-' + item.color]">
-					<view class="cu-tag badge" v-if="item.badge!=0">
-						<block v-if="item.badge!=1">{{item.badge>99?'99+':item.badge}}</block>
-					</view>
-				</view>
-				<text>{{item.name}}</text>
-			</view>
-		</view>
-		<view class="cu-bar bg-white solid-bottom margin-top">
-			<view class="action">
-				<text class="cuIcon-title text-orange "></text> 固资
-			</view>
-		</view>
-		<view class="cu-list grid" :class="['col-' + gridCol,gridBorder?'':'no-border']">
-			<view class="cu-item" v-for="(item,index) in assetsList" :key="index" v-if="index<gridCol*2" @tap="fun.navigateTo(item.url)">
-				<view :class="['cuIcon-' + item.cuIcon,'text-' + item.color]">
-					<view class="cu-tag badge" v-if="item.badge!=0">
-						<block v-if="item.badge!=1">{{item.badge>99?'99+':item.badge}}</block>
-					</view>
-				</view>
-				<text>{{item.name}}</text>
-			</view>
-		</view>
-		<view class="cu-bar bg-white solid-bottom margin-top">
-			<view class="action">
-				<text class="cuIcon-title text-orange "></text> 通知
-			</view>
-		</view>
-		<view class="cu-list grid" :class="['col-' + gridCol,gridBorder?'':'no-border']">
-			<view class="cu-item" v-for="(item,index) in noticeList" :key="index" v-if="index<gridCol*2" @tap="fun.navigateTo(item.url)">
-				<view :class="['cuIcon-' + item.cuIcon,'text-' + item.color]">
-					<view class="cu-tag badge" v-if="item.badge!=0">
-						<block v-if="item.badge!=1">{{item.badge>99?'99+':item.badge}}</block>
-					</view>
-				</view>
-				<text>{{item.name}}</text>
-			</view>
-		</view>
-		<view class="cu-bar bg-white solid-bottom margin-top">
-			<view class="action">
-				<text class="cuIcon-title text-orange "></text> 其他
-			</view>
-		</view>
-		<view class="cu-list grid" :class="['col-' + gridCol,gridBorder?'':'no-border']">
-			<view class="cu-item" v-for="(item,index) in otherList" :key="index" v-if="index<gridCol*2" @tap="fun.navigateTo(item.url)">
-				<view :class="['cuIcon-' + item.cuIcon,'text-' + item.color]">
-					<view class="cu-tag badge" v-if="item.badge!=0">
-						<block v-if="item.badge!=1">{{item.badge>99?'99+':item.badge}}</block>
-					</view>
-				</view>
-				<text>{{item.name}}</text>
-			</view>
-		</view>
-		<view class="cu-load load-modal" v-if="loadModal">
-			<image src="/static/logo.jpg" mode="aspectFit"></image>
-			<view class="gray-text">请稍候...</view>
-		</view>
-		<view class="cu-modal" :class="modalName=='Modal'?'show':''">
+		<c-swiper :swiperList='swiperList'></c-swiper>
+		<c-list :normalList="listData" @todo='attendance' :listType='listType'></c-list>
+		<view class="cu-modal" :class="modalShow ? 'show' : ''">
 			<view class="cu-dialog">
 				<view class="cu-bar bg-white justify-end">
-					<view class="content">提示</view>
+					<view class="content">{{modal.title}}</view>
 					<view class="action" @tap="hideModal">
 						<text class="cuIcon-close text-red"></text>
 					</view>
 				</view>
 				<view class="padding-xl">
-					{{modalContent}}
+					{{modal.content}}
 				</view>
 			</view>
 		</view>
@@ -103,13 +19,21 @@
 </template>
 
 <script>
+	import cList from '../../components/list.vue'
+	import cSwiper from '../../components/swiper.vue'
 	export default {
+		components: {
+			cList,
+			cSwiper
+		},
 		data() {
 			return {
-				loadModal: false,
-				modalName: null,
-				modalContent: null,
-				title: 'Hello',
+				listType: 1,
+				modalShow: false,
+				modal: {
+					title: '提示',
+					content: ''
+				},
 				swiperList: [{
 					id: 0,
 					type: 'image',
@@ -126,103 +50,147 @@
 				dotStyle: true,
 				towerStart: 0,
 				direction: '',
-				attendanceList: [{
-					cuIcon: 'commandfill',
-					color: 'red',
-					badge: 0,
-					name: '签到',
-					type: 0
-				}, {
-					cuIcon: 'commandfill',
-					color: 'black',
-					badge: 0,
-					name: '签退',
-					type: 1
-				}, {
-					cuIcon: 'upstagefill',
-					color: 'cyan',
-					badge: 0,
-					name: '考勤历史',
-					type: 2
-				}],
-				achievementList: [{
-					cuIcon: 'discoverfill',
-					color: 'red',
-					badge: 0,
-					name: '成果列表',
-					url: '/pages/achievement/achievement'
-				}, {
-					cuIcon: 'discoverfill',
-					color: 'cyan',
-					badge: 0,
-					name: '成果录入',
-					url: '/pages/achievement/addAchievement'
-				}],
-				assetsList: [{
-					cuIcon: 'brandfill',
-					color: 'red',
-					badge: 0,
-					name: '固资列表',
-					url: '/pages/assets/assets'
-				}, {
-					cuIcon: 'brandfill',
-					color: 'cyan',
-					badge: 0,
-					name: '固资录入',
-					url: '/pages/assets/addAssets'
-				}],
-				noticeList: [{
-					cuIcon: 'noticefill',
-					color: 'red',
-					badge: 0,
-					name: '通知列表',
-					url: '/pages/notice/notice'
-				}, {
-					cuIcon: 'noticefill',
-					color: 'cyan',
-					badge: 0,
-					name: '发布通知',
-					url: '/pages/notice/addNotice'
-				}],
-				otherList: [{
-					cuIcon: 'questionfill',
-					color: 'red',
-					badge: 0,
-					name: '成员',
-					url: '/pages/user/user'
-				}, {
-					cuIcon: 'recordfill',
-					color: 'orange',
-					badge: 0,
-					name: '监控'
-				}],
-				gridCol: 3,
-				gridBorder: false,
-				menuBorder: false,
-				menuArrow: false,
-				menuCard: false,
-				skin: false,
-				listTouchStart: 0,
-				listTouchDirection: null
+				listData: []
+
 			}
 		},
 		onLoad() {
-
+			this.loadData()
 		},
 		methods: {
-			showModal(e) {
-				this.modalName = 'Modal'
-			},
 			hideModal(e) {
-				this.modalName = ''
+				this.modalShow = false;
+			},
+			loadData: function() {
+				let _this = this;
+				uni.request({
+					url: this.remoteUrl + '/notice/getNoticeNum',
+					method: "POST",
+					header: {
+						'content-type': 'application/json',
+						'Authorization': uni.getStorageSync('Authorization')
+					},
+					success: function(res) {
+						let data = res.data;
+						console.log(res)
+						if (data.success) {
+							_this.buildIndexList(data.data);
+						}
+					}
+				});
+			},
+			buildIndexList: function(noticeNum) {
+				this.listData = [{
+						title: '考勤',
+						list: [{
+							cuIcon: 'commandfill',
+							color: 'red',
+							badge: 0,
+							name: '签到',
+							prop: 'signIn',
+							type: 0
+						}, {
+							cuIcon: 'commandfill',
+							color: 'black',
+							badge: 0,
+							name: '签退',
+							prop: 'signOut',
+							type: 0
+						}, {
+							cuIcon: 'upstagefill',
+							color: 'cyan',
+							badge: 0,
+							name: '考勤历史',
+							type: 1,
+							url: '/pages/attendance/attendance'
+						}]
+					},
+					{
+						title: '成果',
+						list: [{
+							cuIcon: 'discoverfill',
+							color: 'yellow',
+							badge: 0,
+							name: '成果列表',
+							type: 1,
+							url: '/pages/achievement/achievement'
+						}, {
+							cuIcon: 'discoverfill',
+							color: 'cyan',
+							badge: 0,
+							name: '成果录入',
+							type: 1,
+							url: '/pages/achievement/addAchievement'
+						}]
+					},
+					{
+						title: '固资',
+						list: [{
+							cuIcon: 'brandfill',
+							color: 'red',
+							badge: 0,
+							name: '固资列表',
+							type: 1,
+							url: '/pages/assets/assets'
+						}, {
+							cuIcon: 'brandfill',
+							color: 'orange',
+							badge: 0,
+							name: '固资录入',
+							type: 1,
+							url: '/pages/assets/addAssets'
+						}]
+					},
+					{
+						title: '通知',
+						list: [{
+							cuIcon: 'noticefill',
+							color: 'green',
+							badge: noticeNum,
+							name: '通知列表',
+							type: 1,
+							url: '/pages/notice/notice'
+						}, {
+							cuIcon: 'noticefill',
+							color: 'cyan',
+							badge: 0,
+							name: '发布通知',
+							type: 1,
+							url: '/pages/notice/addNotice'
+						}]
+					},
+					{
+						title: '其他',
+						list: [{
+							cuIcon: 'questionfill',
+							color: 'red',
+							badge: 0,
+							name: '成员',
+							type: 1,
+							url: '/pages/user/user'
+						}, {
+							cuIcon: 'recordfill',
+							color: 'black',
+							badge: 0,
+							type: 1,
+							name: '监控',
+							url: '/pages/monitor/monitor'
+						}, {
+							cuIcon: 'recordfill',
+							color: 'green',
+							badge: 0,
+							type: 1,
+							name: '录入摄像头',
+							url: '/pages/monitor/addCamera'
+						}]
+					}
+				]
 			},
 			attendance(type) {
-				if (type == 0) {
+				if (type == 'signIn') {
 					this.signIn();
-				} else if (type == 1) {
+				} else if (type == 'signOut') {
 					this.signOut();
-				} else if (type == 2) {
-					this.fun.navigateTo('/pages/attendance/attendance')
 				}
 			},
 			signIn() {
@@ -232,21 +200,17 @@
 					method: "POST",
 					header: {
 						'content-type': 'application/json',
-						'Authorization':uni.getStorageSync('Authorization')
+						'Authorization': uni.getStorageSync('Authorization')
 					},
 					success: function(res) {
-						_this.loadModal = true;
 						console.log(res.data);
 						let data = res.data;
 						if (data.success) {
-							_this.loadModal = false;
-							_this.modalContent = '签到成功';
-							_this.showModal();
+							_this.modal.content = '签到成功';
 						} else {
-							_this.loadModal = false;
-							_this.modalContent = data.message;
-							_this.showModal();
+							_this.modal.content = data.message;
 						}
+						_this.modalShow = true;
 					}
 				});
 			},
@@ -257,21 +221,16 @@
 					method: "POST",
 					header: {
 						'content-type': 'application/json',
-						'Authorization':uni.getStorageSync('Authorization')
+						'Authorization': uni.getStorageSync('Authorization')
 					},
 					success: function(res) {
-						_this.loadModal = true;
-						console.log(res.data);
 						let data = res.data;
 						if (data.success) {
-							_this.loadModal = false;
-							_this.modalContent = '签退成功';
-							_this.showModal();
+							_this.modal.content = '签退成功';
 						} else {
-							_this.loadModal = false;
-							_this.modalContent = data.message;
-							_this.showModal();
+							_this.modal.content = data.message;
 						}
+						_this.modalShow = true;
 					}
 				});
 			}
@@ -294,5 +253,9 @@
 		margin-left: auto;
 		margin-right: auto;
 		margin-bottom: 50rpx;
+	}
+
+	.modal {
+		z-index: 100000000;
 	}
 </style>
